@@ -31,10 +31,8 @@
 
 void Falcon::update() {
     totalForce = glm::vec3(0,0,0);
-    for(int i = 0; i < forceList.size(); i++){
+    for(int i = 0; i < forceList.size(); i++)
         totalForce += forceList[i];
-        //cout << totalForce <<endl;
-    }
     
     float dist = speed * 1 / ofGetFrameRate();
     glm::vec3 dir;
@@ -59,6 +57,10 @@ void Falcon::update() {
     
     integrate();
     position += dir;
+    if(velocity.y > 50)
+        velocity.y = 50;
+    if(velocity.y < -50)
+        velocity.y = -50;
     rocket.setPosition(position.x, position.y, position.z);
 }
 
@@ -88,7 +90,7 @@ void Falcon::integrate() {
     
     // add a little damping for good measure
     //
-    //velocity *= damping;
+    velocity *= damping;
     //cout << "velocity: " << velocity << endl;
     // clear forces on particle (they get re-added each step)
     //

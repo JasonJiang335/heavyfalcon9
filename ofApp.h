@@ -48,6 +48,7 @@ class ofApp : public ofBaseApp{
     void moveFalcon(MoveDir dir);
 		
 
+    ofImage  backgroundImage;
 		ofEasyCam cam;
 		ofCamera topCam;
         ofCamera sideCam;
@@ -56,11 +57,14 @@ class ofApp : public ofBaseApp{
     ofCamera obDownCam;
 		ofCamera *theCam;
     ofxAssimpModelLoader mars;
-        Falcon falcon;
+        Falcon falconMain;
+    Falcon falconLeft;
+    Falcon falconRight;
 		ofLight light;
 		Box boundingBox;
 		Box roverBounds;
-	
+    
+    bool bBackgroundLoaded = false;
 		bool bAltKeyDown;
 		bool bCtrlKeyDown;
 		bool bWireframe;
@@ -82,6 +86,7 @@ class ofApp : public ofBaseApp{
     glm::vec3 exhaustOffsetL = glm::vec3(18,0,18);
     glm::vec3 exhaustOffsetM = glm::vec3(50,0,18);
     glm::vec3 exhaustOffsetR = glm::vec3(80,0,18);
+    glm::vec3 falconOffset = glm::vec3(30,0,0);
         glm::vec3 contPt;
 		glm::vec3 mouseDownPos;
 		glm::vec3 mouseLastPos;

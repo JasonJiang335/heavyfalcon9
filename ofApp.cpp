@@ -41,12 +41,12 @@ void ofApp::setup(){
 	cam.setNearClip(.1);
     cam.setFarClip(10000000000.0);
 	cam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
-    cam.lookAt(falcon.position);
+    cam.lookAt(falconMain.position);
 	ofSetVerticalSync(true);
 	cam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
-    
+    backgroundImage.load("images/background.jpg");
 	// setup rudimentary lighting 
 	//
 	initLightingAndMaterials();
@@ -70,11 +70,21 @@ void ofApp::setup(){
         shader.load("shaders/shader");
     #endif
 
-	mars.loadModel("geo/mars-landing-original.obj");
+	mars.loadModel("geo/mars-landing-huge.obj");
 	mars.setScaleNormalization(false);
-    falcon.rocket.loadModel("geo/Heavy_falcon.obj");
-    falcon.rocket.setScaleNormalization(false);
-    falcon.forceList.push_back(glm::vec3(0,-1,0));
+    
+    falconLeft.rocket.loadModel("geo/HFLeftBooster.obj");
+    falconLeft.rocket.setScaleNormalization(false);
+    falconLeft.forceList.push_back(glm::vec3(0,-1,0));
+    falconMain.rocket.loadModel("geo/HFMainBooster.obj");
+    falconMain.position += falconOffset;
+    falconMain.rocket.setScaleNormalization(false);
+    falconMain.forceList.push_back(glm::vec3(0,-1,0));
+    falconRight.rocket.loadModel("geo/HFLeftBooster.obj");
+    falconRight.position += 2*falconOffset;
+    falconRight.rocket.setScaleNormalization(false);
+    falconRight.forceList.push_back(glm::vec3(0,-1,0));
+    
     
 	boundingBox = meshBounds(mars.getMesh(0));
 	octree.create(mars.getMesh(0), 100);
@@ -90,7 +100,7 @@ void ofApp::setup(){
     exhaustL.setGroupSize(numParticles);
     exhaustL.setRandomLife(true);
     exhaustL.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
-    exhaustL.setPosition(falcon.rocket.getSceneMin()+falcon.rocket.getPosition() + exhaustOffsetL);
+    exhaustL.setPosition(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition() + exhaustOffsetL);
 
     exhaustM.sys->addForce(turbForce);
     exhaustM.sys->addForce(gravityForce);
@@ -100,7 +110,7 @@ void ofApp::setup(){
     exhaustM.setGroupSize(numParticles);
     exhaustM.setRandomLife(true);
     exhaustM.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
-    exhaustM.setPosition(falcon.rocket.getSceneMin()+falcon.rocket.getPosition() + exhaustOffsetM);
+    exhaustM.setPosition(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition() + exhaustOffsetM);
 
     exhaustR.sys->addForce(turbForce);
     exhaustR.sys->addForce(gravityForce);
@@ -110,7 +120,7 @@ void ofApp::setup(){
     exhaustR.setGroupSize(numParticles);
     exhaustR.setRandomLife(true);
     exhaustR.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
-    exhaustR.setPosition(falcon.rocket.getSceneMin()+falcon.rocket.getPosition() + exhaustOffsetR);
+    exhaustR.setPosition(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition() + exhaustOffsetR);
     
     // some simple sliders to play with parameters
     //
@@ -124,14 +134,14 @@ void ofApp::setup(){
     gui.add(turbMin.setup("Turbulence Min", ofVec3f(-7, 0, -7), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
     gui.add(turbMax.setup("Turbulence Max", ofVec3f(7, -20, 7), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
     
-    topCam.setPosition(falcon.position + glm::vec3(100, 300, 100));
-    topCam.lookAt(falcon.position);
+    topCam.setPosition(falconMain.position + glm::vec3(100, 300, 100));
+    topCam.lookAt(falconMain.position);
     topCam.setNearClip(.1);
     topCam.setFarClip(10000000000.0);
     topCam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
     
-    sideCam.setPosition(falcon.position + glm::vec3(0,0,1500));
-    sideCam.lookAt(falcon.position);
+    sideCam.setPosition(falconMain.position + glm::vec3(0,0,1500));
+    sideCam.lookAt(falconMain.position);
     sideCam.setNearClip(.1);
     sideCam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
     
@@ -201,7 +211,7 @@ void ofApp::loadVboR() {
 //
 void ofApp::update() {
     ofSeedRandom();
-    exhaustL.setPosition(falcon.rocket.getSceneMin()+falcon.rocket.getPosition() + exhaustOffsetL);
+    exhaustL.setPosition(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition() + exhaustOffsetL);
     exhaustL.setParticleRadius(radius);
     exhaustL.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
     exhaustL.setMass(mass);
@@ -209,7 +219,7 @@ void ofApp::update() {
     exhaustL.setGroupSize(numParticles);
     exhaustL.update();
 
-    exhaustM.setPosition(falcon.rocket.getSceneMin()+falcon.rocket.getPosition() + exhaustOffsetM);
+    exhaustM.setPosition(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition() + exhaustOffsetM);
     exhaustM.setParticleRadius(radius);
     exhaustM.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
     exhaustM.setMass(mass);
@@ -217,7 +227,7 @@ void ofApp::update() {
     exhaustM.setGroupSize(numParticles);
     exhaustM.update();
 
-    exhaustR.setPosition(falcon.rocket.getSceneMin()+falcon.rocket.getPosition() + exhaustOffsetR);
+    exhaustR.setPosition(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition() + exhaustOffsetR);
     exhaustR.setParticleRadius(radius);
     exhaustR.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
     exhaustR.setMass(mass);
@@ -228,55 +238,34 @@ void ofApp::update() {
     gravityForce->set(ofVec3f(0, -gravity, 0));
     turbForce->set(ofVec3f(turbMin->x, turbMin->y, turbMin->z), ofVec3f(turbMax->x, turbMax->y, turbMax->z));
     
-    falcon.update();
-    glm::vec3 roverPos = falcon.rocket.getPosition();
-    glm::vec3 roverLow = falcon.rocket.getSceneMin() + falcon.rocket.getPosition();
+    falconMain.update();
+    glm::vec3 roverPos = falconMain.rocket.getPosition();
+    glm::vec3 roverLow = falconMain.rocket.getSceneMin() + falconMain.rocket.getPosition();
     if(roverLow.y < contactPoint().y){
-        roverPos.y = contPt.y - falcon.rocket.getSceneMin().y;
-        falcon.velocity = glm::vec3(0,0,0);
-        falcon.acceleration = glm::vec3(0,0,0);
-        falcon.forceList.clear();
+        roverPos.y = contPt.y - falconMain.rocket.getSceneMin().y;
+        falconMain.velocity = glm::vec3(0,0,0);
+        falconMain.acceleration = glm::vec3(0,0,0);
+        falconMain.forceList.clear();
     }
-    falcon.rocket.setPosition(roverPos.x, roverPos.y, roverPos.z);
+    falconMain.rocket.setPosition(roverPos.x, roverPos.y, roverPos.z);
     
     //update cam position
-    topCam.setPosition(falcon.position + glm::vec3(100, 300, 100));
-    topCam.lookAt(falcon.position);
-    sideCam.setPosition(falcon.position + glm::vec3(0,0,1500));
-    sideCam.lookAt(falcon.position);
-    /*if(pathPoint.size() > 1 && !bCamMotion){
-        pathCam.setPosition(pathPoint[0].x, pathPoint[0].y + 0.5, pathPoint[0].z);
-        pathCam.lookAt(pathPoint[1]);
-    }
-    else if(pathPoint.size() > 1 && bCamMotion){
-        for(int i = 0; i < pathPoint.size()-1; i++){
-            if(inBetweenPoints(pathCam.getPosition(), pathPoint[i], pathPoint[i+1])){
-                glm::vec3 delta = pathPoint[i+1] - pathPoint[i];
-                glm::vec3 oldCamPos = pathCam.getPosition();
-                pathCam.setPosition(oldCamPos + delta/1500);
-                spotCam.setPosition(oldCamPos + delta/1500);
-                if(bRoverLoaded){
-                    glm::vec3 rPos = rover.getPosition();
-                    spotCam.lookAt(glm::vec3(rPos.x, rPos.y+0.5, rPos.z));
-                }
-                pathCam.lookAt(glm::vec3(pathPoint[i+1].x, pathPoint[i+1].y+0.5, pathPoint[i+1].z));
-                oldCamPos = pathCam.getPosition();
-            }
-        }
-    }*/
+    topCam.setPosition(falconMain.position + glm::vec3(100, 300, 100));
+    topCam.lookAt(falconMain.position);
+    sideCam.setPosition(falconMain.position + glm::vec3(0,0,1500));
+    sideCam.lookAt(falconMain.position);
 }
-
-/*bool ofApp::inBetweenPoints(const glm::vec3 & camPos, const glm::vec3 & p1, const glm::vec3 & p2){
-    if(abs((camPos.x - p1.x)/(p2.x - p1.x) - (camPos.y - 0.5 - p1.y)/(p2.y - p1.y)) < 0.01 &&
-       abs((camPos.x - p1.x)/(p2.x - p1.x) - (camPos.z - p1.z)/(p2.z - p1.z)) < 0.01 &&
-       abs((camPos.z - p1.z)/(p2.z - p1.z) - (camPos.y - 0.5 - p1.y)/(p2.y - p1.y)) < 0.01)
-        return true;
-    return false;
-}*/
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofBackground(0,0,30);
-    gui.draw();
+    //draw background image
+    ofPushMatrix();
+    ofDisableDepthTest();
+    ofSetColor(50, 50, 50);
+    ofScale(2, 2);
+    backgroundImage.draw(-200, -100);
+    ofEnableDepthTest();
+    ofPopMatrix();
+   
     ofEnableLighting();
     loadVboL();
     loadVboM();
@@ -288,18 +277,16 @@ void ofApp::draw(){
 		ofDisableLighting();
 		ofSetColor(ofColor::slateGray);
 		mars.drawWireframe();
-        falcon.rocket.drawWireframe();
+        falconMain.rocket.drawWireframe();
         //if (!bTerrainSelected) drawAxis(rover.getPosition());
 		if (bTerrainSelected) drawAxis(ofVec3f(0, 0, 0));
 	}
 	else {
 		ofEnableLighting();              // shaded mode
 		mars.drawFaces();
-        //glm::vec3 pos = falcon.position;
-        //falcon.rocket.setPosition(pos.x, pos.y, pos.z);
-        falcon.rocket.drawFaces();
+        falconMain.rocket.drawFaces();
         ofSetLineWidth(5);
-        ofDrawLine(falcon.rocket.getSceneMin()+falcon.rocket.getPosition(), contactPoint());
+        ofDrawLine(falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition(), contactPoint());
         ofDrawSphere(contactPoint(), 10);
         ofSetLineWidth(1);
         
@@ -337,7 +324,7 @@ void ofApp::draw(){
 
 	ofNoFill();
 	ofSetColor(ofColor::white);
-	drawBox(boundingBox);
+	//drawBox(boundingBox);
 
 	theCam->end();
     ofDisablePointSprites();
@@ -352,19 +339,20 @@ void ofApp::draw(){
     //
     string fps, v, alt;
     fps += "Frame Rate: " + std::to_string(ofGetFrameRate());
-    v += "Velocity: " + std::to_string(falcon.velocity.y);
-    glm::vec3 p1 = falcon.rocket.getSceneMin()+falcon.rocket.getPosition();
+    v += "Velocity: " + std::to_string(falconMain.velocity.y);
+    glm::vec3 p1 = falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition();
     alt += "Altitude: " + std::to_string(glm::distance(p1, contactPoint())/100);
     ofSetColor(ofColor::white);
     ofDrawBitmapString(fps, ofGetWindowWidth() -170, 15);
     ofDrawBitmapString(v, ofGetWindowWidth() -170, 30);
     ofDrawBitmapString(alt, ofGetWindowWidth() -170, 45);
+    ofDisableDepthTest(); 
+    gui.draw();
 }
 
 // Draw an XYZ axis in RGB at world (0,0,0) for reference.
 //
 void ofApp::drawAxis(ofVec3f location) {
-
 	ofPushMatrix();
 	ofTranslate(location);
 
@@ -447,7 +435,7 @@ void ofApp::keyPressed(int key) {
 	case OF_KEY_SHIFT:
 		break;
 	case OF_KEY_F1:
-        cam.lookAt(falcon.position);
+        cam.lookAt(falconMain.position);
 		theCam = &cam;
 		break;
 	case OF_KEY_F2:
@@ -467,13 +455,16 @@ void ofApp::keyPressed(int key) {
         exhaustM.start();
         exhaustR.sys->reset();
         exhaustR.start();
-        falcon.velocity += glm::vec3(0,1,0);
-        falcon.forceList.push_back(glm::vec3(0,0.5,0));
+        falconMain.velocity += glm::vec3(0,1,0);
+        
+        falconMain.forceList.push_back(glm::vec3(0,0.5,0));
         break;
     case OF_KEY_LEFT:
+            falconMain.speed = 100;
             moveFalcon(MoveLeft);
         break;
     case OF_KEY_RIGHT:
+            falconMain.speed = 100;
             moveFalcon(MoveRight);
         break;
     default:
@@ -482,7 +473,7 @@ void ofApp::keyPressed(int key) {
 }
 
 void ofApp::moveFalcon(MoveDir dir) {
-    falcon.moveDir = dir;
+    falconMain.moveDir = dir;
 }
 
 void ofApp::toggleWireframeMode() {
@@ -512,9 +503,15 @@ void ofApp::keyReleased(int key) {
 		break;
             
     case ' ':
-            falcon.forceList.clear();
-            falcon.acceleration = glm::vec3(0,0,0);
-            falcon.forceList.push_back(glm::vec3(0,-10,0));
+        falconMain.forceList.clear();
+        falconMain.acceleration = glm::vec3(0,0,0);
+        falconMain.forceList.push_back(glm::vec3(0,-10,0));
+        break;
+    case OF_KEY_LEFT:
+        falconMain.speed = 0;
+        break;
+    case OF_KEY_RIGHT:
+        falconMain.speed = 0;
         break;
 	default:
 		break;
@@ -611,13 +608,13 @@ void ofApp::mouseDragged(int x, int y, int button) {
 	if (bInDrag) {
 		glm::vec3 mousePos = getMousePointOnPlane();
 		glm::vec3 delta = mousePos - mouseLastPos;
-		glm::vec3 roverPos = falcon.rocket.getPosition();
+		glm::vec3 roverPos = falconMain.rocket.getPosition();
 		roverPos += delta;
-        glm::vec3 roverLow = falcon.rocket.getSceneMin()+falcon.rocket.getPosition();
+        glm::vec3 roverLow = falconMain.rocket.getSceneMin()+falconMain.rocket.getPosition();
         if(roverLow.y < contactPoint().y)
-            roverPos.y = contPt.y - falcon.rocket.getSceneMin().y;
+            roverPos.y = contPt.y - falconMain.rocket.getSceneMin().y;
         
-		falcon.rocket.setPosition(roverPos.x, roverPos.y, roverPos.z);
+		falconMain.rocket.setPosition(roverPos.x, roverPos.y, roverPos.z);
 		mouseLastPos = mousePos;
 	}
 }
@@ -628,7 +625,7 @@ void ofApp::mouseReleased(int x, int y, int button) {
 }
 
 glm::vec3 ofApp::contactPoint(){
-    glm::vec3 roverMin = falcon.rocket.getSceneMin() + falcon.rocket.getPosition();
+    glm::vec3 roverMin = falconMain.rocket.getSceneMin() + falconMain.rocket.getPosition();
     glm::vec3 roverDir(0,-1,0);
     Ray roverRay(Vector3(roverMin.x, roverMin.y, roverMin.z), Vector3(roverDir.x, roverDir.y, roverDir.z));
         

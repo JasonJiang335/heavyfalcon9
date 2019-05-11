@@ -20,7 +20,7 @@ public:
     void update();
     void integrate();
     
-    glm::vec3 position = glm::vec3(0,500,0);
+    glm::vec3 position = glm::vec3(0,50,0);
     glm::vec3 velocity;
     glm::vec3 acceleration;
     glm::vec3 totalForce;
@@ -28,7 +28,7 @@ public:
     
     ofxAssimpModelLoader rocket;
     float speed = 0;
-    float damping = 0.99;
-    float mass = 1000;
+    float damping = 0.99999;
+    float mass = 566;
     MoveDir moveDir;
 };
